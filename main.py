@@ -66,8 +66,6 @@ def spawn_food():
             f = (random.randrange(0,tile_num_x),random.randrange(0,tile_num_y))
         else: 
              return f[0] *TILE_SIZE, f[1] * TILE_SIZE
-    # fx,fy = get_tile_start_pos(f[0], f[1])
-    # pygame.draw.circle(screen, pygame.Color("deeppink"), (f[0]+(TILE_SIZE//2), f[1]+(TILE_SIZE//2)), TILE_SIZE//2, 0)
 
 
 food = spawn_food()
@@ -97,6 +95,7 @@ while running:
     # 2. Update game state
     ## main game logic
     old_head = parts[0]
+    old_tail = parts[-1]
     new_head = move(parts[0], general_dir) #
     # body = parts[1:] # body (excl head)
 
@@ -109,6 +108,23 @@ while running:
             p = parts[index-1]
             new_whole.append(p)
     parts = new_whole
+
+    ## check for head + food collisions
+    ### food overlap?
+    print(f"""🐞 parts: {parts}, food: {food}""")
+    if parts[0] == food:
+        print("🍫 EATING")
+        food = spawn_food()
+        parts.append(old_tail)
+
+    ### body overlap?
+    for index, part in enumerate(parts):
+        if index == 0: #skip, this is our head/reference point
+            continue
+        else:
+            if parts[index] == parts[0]:
+                print("🔴 GAME OVER: Self-eat")
+                running = False
 
     # 3. Render
     screen.fill((30,30,30)) # clear screen
