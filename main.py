@@ -10,7 +10,7 @@ screen = pygame.display.set_mode((WINDOW_WIDTH,WINDOW_HEIGHT))
 pygame.display.set_caption("Initial Window")
 clock = pygame.time.Clock()
 
-SPEED = 1
+SPEED = 5
 TILE_SIZE = 30
 
 tile_num_x = WINDOW_WIDTH//TILE_SIZE
