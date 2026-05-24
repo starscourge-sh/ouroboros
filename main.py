@@ -1,4 +1,5 @@
 import pygame
+import random
 
 pygame.init()
 
@@ -9,20 +10,16 @@ screen = pygame.display.set_mode((WINDOW_WIDTH,WINDOW_HEIGHT))
 pygame.display.set_caption("Initial Window")
 clock = pygame.time.Clock()
 
-SPEED = 8
+SPEED = 1
 TILE_SIZE = 30
-grid_x = WINDOW_WIDTH 
-grid_y = WINDOW_HEIGHT
 
-LEFT = pygame.K_LEFT
-RIGHT = pygame.K_RIGHT
-UP = pygame.K_UP
-DOWN = pygame.K_DOWN
+tile_num_x = WINDOW_WIDTH//TILE_SIZE
+tile_num_y = WINDOW_HEIGHT//TILE_SIZE
 
 running = True 
-head_pos = (0,0)
-parts = [(0,0),(1,0),(2,0),(3,0)]
-general_dir = RIGHT
+
+parts = [(0,0)]
+general_dir = pygame.K_RIGHT
 
 def get_tile_block_pos (x,y):
     tile_x = x//TILE_SIZE
@@ -30,13 +27,11 @@ def get_tile_block_pos (x,y):
     return tile_x, tile_y
 
 def get_tile_start_pos(block_x, block_y):
-    x = block_x * TILE_SIZE 
-    y = block_y * TILE_SIZE
-    return x, y
+    return block_x * TILE_SIZE ,block_y * TILE_SIZE
 
-def move(cur_pos, dir):
+def move(cur_pos, direction):
     new_x, new_y = cur_pos
-    match dir:
+    match direction:
         case pygame.K_RIGHT:
             new_x = new_x + TILE_SIZE
             if new_x >= WINDOW_WIDTH - 1:
@@ -53,11 +48,25 @@ def move(cur_pos, dir):
             new_y = new_y + TILE_SIZE
             if new_y >= WINDOW_HEIGHT - 1:
                 new_y = 0
-
     return new_x, new_y
 
+
+def spawn_food():
+    f = (random.randrange(0,tile_num_x),random.randrange(0,tile_num_y))
+    # Ensure food position does not overlap with snake body 
+    while True:
+        if f in parts:
+            f = (random.randrange(0,tile_num_x),random.randrange(0,tile_num_y))
+        else: 
+             return f[0] *TILE_SIZE, f[1] * TILE_SIZE
+    # fx,fy = get_tile_start_pos(f[0], f[1])
+    # pygame.draw.circle(screen, pygame.Color("deeppink"), (f[0]+(TILE_SIZE//2), f[1]+(TILE_SIZE//2)), TILE_SIZE//2, 0)
+
+
+food = spawn_food()
+print(f""""🌭 food: {food}""")
+
 while running:
-    print(f"""👉🏻 General direction: {general_dir} 👈🏻""")
     # 1. Handle events
     for event in pygame.event.get():
         match event.type:
@@ -67,12 +76,12 @@ while running:
             case pygame.MOUSEBUTTONDOWN: # detecting clicked grid
                 click_x, click_y = event.pos
                 tile_x, tile_y = get_tile_block_pos(click_x, click_y)
-                head_pos = get_tile_start_pos(tile_x, tile_y)
+                food = (tile_x, tile_y)
                 print(f"""👉🏻 Current tile position (0-indexed): {(tile_x,tile_y)} """)
-                print(f"""👉🏻 Current tile start position cordinate: {head_pos} """)
+                print(f"""👉🏻 Current tile start position cordinate: {parts[0]} """)
                 print("------\n")
             case pygame.KEYDOWN:
-                if event.key in (LEFT, UP, RIGHT, DOWN):
+                if event.key in (pygame.K_DOWN, pygame.K_UP, pygame.K_LEFT, pygame.K_RIGHT):
                     general_dir = event.key
                 else:
                     print(f"""😑 unhandled key: {event.key}""")
@@ -81,7 +90,8 @@ while running:
     ## main game logic
     old_head = parts[0]
     new_head = move(parts[0], general_dir) #
-    body = parts[1:] # body (excl head)
+    # body = parts[1:] # body (excl head)
+
     # loop through all parts and have each (except for head) inherit position of last
     new_whole = []
     for index, part in enumerate(parts):
@@ -94,15 +104,14 @@ while running:
 
     # 3. Render
     screen.fill((30,30,30)) # clear screen
-    # Draw objects
+    ## Draw objects
     for part in parts:
         pygame.draw.rect(screen, pygame.Color("limegreen"),(part[0], part[1], TILE_SIZE,TILE_SIZE))
 
-    pygame.draw.circle(screen, pygame.Color("deeppink"), (TILE_SIZE//2, TILE_SIZE//2), TILE_SIZE//2, 1)
+    pygame.draw.circle(screen, pygame.Color("deeppink"), (food[0] + (TILE_SIZE//2), food[1] + (TILE_SIZE//2)), TILE_SIZE//2, 0)
 
-
-    pygame.display.flip() # refreshes screen/ updates display
-    clock.tick(SPEED) # limit to 60 FPS
+    pygame.display.flip() # refreshes screen / updates display
+    clock.tick(SPEED) # limit to <SPEED> FPS
 
 pygame.quit()
 
