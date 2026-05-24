@@ -21,6 +21,13 @@ running = True
 parts = [(0,0)]
 general_dir = pygame.K_RIGHT
 
+VALID_MOVES = {
+        pygame.K_RIGHT :[pygame.K_UP, pygame.K_DOWN],
+        pygame.K_LEFT :[pygame.K_UP, pygame.K_DOWN],
+        pygame.K_UP: [pygame.K_LEFT, pygame.K_RIGHT],
+        pygame.K_DOWN: [pygame.K_LEFT, pygame.K_RIGHT],
+        }
+
 def get_tile_block_pos (x,y):
     tile_x = x//TILE_SIZE
     tile_y = y//TILE_SIZE
@@ -82,7 +89,8 @@ while running:
                 print("------\n")
             case pygame.KEYDOWN:
                 if event.key in (pygame.K_DOWN, pygame.K_UP, pygame.K_LEFT, pygame.K_RIGHT):
-                    general_dir = event.key
+                    if event.key in VALID_MOVES[general_dir]:
+                        general_dir = event.key
                 else:
                     print(f"""😑 unhandled key: {event.key}""")
 
