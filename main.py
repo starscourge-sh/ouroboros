@@ -3,11 +3,14 @@ import random
 
 pygame.init()
 
+pygame.font.init() 
+font = pygame.font.SysFont('Comic Sans MS', 30)
+
 WINDOW_WIDTH = 900
 WINDOW_HEIGHT = 900
 
 screen = pygame.display.set_mode((WINDOW_WIDTH,WINDOW_HEIGHT))
-pygame.display.set_caption("Initial Window")
+pygame.display.set_caption("Ouroboros")
 clock = pygame.time.Clock()
 
 SPEED = 5
@@ -69,6 +72,7 @@ def spawn_food():
 
 
 food = spawn_food()
+score = 0
 print(f""""🌭 food: {food}""")
 
 while running:
@@ -116,6 +120,7 @@ while running:
         print("🍫 EATING")
         food = spawn_food()
         parts.append(old_tail)
+        score += 10
 
     ### body overlap?
     for index, part in enumerate(parts):
@@ -133,6 +138,9 @@ while running:
         pygame.draw.rect(screen, pygame.Color("limegreen"),(part[0], part[1], TILE_SIZE,TILE_SIZE))
 
     pygame.draw.circle(screen, pygame.Color("deeppink"), (food[0] + (TILE_SIZE//2), food[1] + (TILE_SIZE//2)), TILE_SIZE//2, 0)
+
+    text_surface = font.render(f"""Score: {score}""", False, (255,255,255))
+    screen.blit(text_surface, (0,0))
 
     pygame.display.flip() # refreshes screen / updates display
     clock.tick(SPEED) # limit to <SPEED> FPS
